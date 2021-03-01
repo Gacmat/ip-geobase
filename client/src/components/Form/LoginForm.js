@@ -6,6 +6,7 @@ import {FlashTimeouts, GeobaseApi} from "../../app.config";
 import Cookies from 'universal-cookie';
 import {NavLink} from "react-router-dom";
 import {Redirect} from "react-router";
+import Icons from "../Icons";
 
 const styles = {
     wrapper: 'flex justify-center sm:mt-0 md:mt-24',
@@ -19,17 +20,19 @@ class loginForm extends React.Component {
     state = {
         email: '',
         password: '',
-        isLogged: false
+        isLogged: false,
+        signingInProgress: false
     }
 
     handleLogin = (e) => {
-        const {showFlash} = this.props;
         e.preventDefault();
-        const cookies = new Cookies();
+        const {showFlash} = this.props;
         const {email, password} = this.state;
+        const cookies = new Cookies();
         if (!email || !password) {
             showFlash('E-mail or password are empty', 'warning');
         } else {
+            this.setState({signingInProgress: true});
             axios({
                 url: GeobaseApi.LOGIN,
                 method: 'post',
@@ -42,13 +45,18 @@ class loginForm extends React.Component {
                 cookies.set('expiresIn', res.data.expiresIn, {path: '/'});
                 cookies.set('loggedUser', res.data.userName, {path: '/'});
                 showFlash(`Login successful - welcome ${res.data.userName}`, 'success');
+                this.props.refreshHeader();
+                this.setState({signingInProgress: false});
                 this.setState({isLogged: true});
-                setTimeout(window.location.reload(), 2 * FlashTimeouts.TIMEOUT + FlashTimeouts.DURATION);
             }).catch(err => {
-                showFlash('Wrong e-mail or password, try again', 'error');
+                if(err.response){
+                    showFlash(`${err.message} - probably wrong email or password`, 'error');
+                }else if(err.request) {
+                    showFlash(err.message, 'error');
+                }
+                this.setState({signingInProgress: false});
             })
         }
-
     }
 
     handleChange = (e) => {
@@ -56,17 +64,20 @@ class loginForm extends React.Component {
     }
 
     render() {
-
+        const {signingInProgress, isLogged} = this.state;
         return (
             <>
                 <div className={styles.wrapper}>
                     <form onSubmit={this.handleLogin} className={styles.dialogBox}>
-                        <Input disabled={this.state.isLogged} onChange={this.handleChange} id="email" label="E-mail"/>
-                        <Input disabled={this.state.isLogged} onChange={this.handleChange} id="password"
+                        <Input disabled={isLogged} onChange={this.handleChange} id="email" label="E-mail"/>
+                        <Input disabled={isLogged} onChange={this.handleChange} id="password"
                                label="Password" placeholder="********"/>
                         <div className={styles.buttonWrapper}>
-                            <Button disabled={this.state.isLogged}>Sign In</Button>
-                            <NavLink to={this.state.isLogged ? "/" : "/register"} className={styles.registerLink}>Don't
+                            <Button disabled={isLogged || signingInProgress}>
+                                Sign In
+                                {signingInProgress && Icons.loading}
+                            </Button>
+                            <NavLink to={isLogged ? "/" : "/register"} className={styles.registerLink}>Don't
                                 have an account?</NavLink>
                         </div>
                     </form>

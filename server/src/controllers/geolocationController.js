@@ -25,7 +25,7 @@ export default {
         const [geolocations, count, countAll] = await Promise.all([geoPromise, countPromise, countAllPromise]);
         return res.status(200).send(
             {
-                geolocations,
+                geolocations: geolocations || [],
                 perPage: per_page,
                 offset: offset,
                 count: count,

@@ -1,15 +1,23 @@
 import React from 'react';
 import Cell from "./Cell";
-import GeobaseTableContext from "./GeobaseTable.context";
+import AppContext from "../../app.context";
 
 const styles = {
     tr: 'bg-white hover:bg-blue-100 cursor-pointer',
+
 }
 
-const Row = ({item, blank}) => (
-    <GeobaseTableContext.Consumer>
+const Row = ({item}) => (
+    <AppContext.Consumer>
+            {/*const contextModalElememts = {
+                    ip: this.state.ip,
+                    openModal: this.openModal,
+                    closeModal: this.closeModal,
+                    handleChange: this.handleChange,
+                    showFlash: this.props.showFlash
+        }*/}
             {(context)=>(
-                <tr className={styles.tr} onClick={blank ? null: ()=>{context.openEditWindow(item)}}>
+                <tr className={styles.tr} onClick={()=>{context.openModal(item)}}>
                         <Cell>{item.slug}</Cell>
                         <Cell>{item.ip}</Cell>
                         <Cell>{item.type}</Cell>
@@ -23,7 +31,10 @@ const Row = ({item, blank}) => (
                         <Cell>{item.updatedAt}</Cell>
                 </tr>
             )}
-    </GeobaseTableContext.Consumer>
+    </AppContext.Consumer>
+
+
 )
+
 
 export default Row;

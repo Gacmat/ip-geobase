@@ -13,5 +13,5 @@ export const GeobaseApi = {
 
 export const FlashTimeouts ={
     TIMEOUT: 350,
-    DURATION: 2000,
+    DURATION: 5000,
 }

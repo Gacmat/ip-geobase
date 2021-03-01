@@ -5,14 +5,16 @@ import {CSSTransition} from "react-transition-group";
 
 
 const styles = {
-    flashAreaContainer: 'flex absolute z-50 w-full h-0',
-    flashArea: 'mt-4 mx-auto bg-black',
-    default: 'bg-blue-300 border border-blue-300 rounded-xl w-80 shadow-xl',
-    success: 'bg-green-300 border border-green-500 rounded-xl w-80 shadow-xl',
-    warning: 'bg-yellow-300 border-2 border-yellow-300 rounded-xl w-80 shadow-xl',
-    error: 'bg-red-700 border border-red-700 rounded-xl w-80 shadow-xl',
-    message: 'flex bg-white text-black rounded-b-xl text-xl h-28 p-2',
-    title: 'ml-2 py-1 text-2xl',
+    flashAreaContainer: 'flex absolute  w-full shadow-lg',
+    flashArea: 'mx-auto flex w-full',
+    default: 'bg-blue-300      flex flex-row h-auto w-full cursor-pointer hover:bg-blue-200',
+    success: 'bg-green-300     flex flex-row h-auto w-full cursor-pointer hover:bg-green-200',
+    warning: 'bg-yellow-300    flex flex-row h-auto w-full cursor-pointer hover:bg-yellow-200',
+    error: 'bg-red-700         flex flex-row h-auto w-full cursor-pointer hover:bg-red-300',
+    title: 'py-2 px-8 text-base font-semibold',
+    messageWrapper: 'flex flex-row w-full',
+    message: 'flex whitespace-nowrap w-full space-x-reverse bg-blue-100 transparent text-black p-2 justify-between ',
+    click: 'bg-blue-100 whitespace-nowrap h-full m-auto p-2'
 }
 
 
@@ -24,11 +26,14 @@ const Flash = ({indicator, type, closeFn, message}) => {
         <CSSTransition in={indicator} timeout={FlashTimeouts.TIMEOUT} classNames="display" unmountOnExit>
             <div className={styles.flashAreaContainer}>
                 <div className={styles.flashArea}>
-                    <div onMouseLeave={closeFn} onClick={closeFn} className={styles[type]}>
-                        <h1 className={styles.title}>{title}</h1>
-                        <div className={styles.message}>
-                            <span>{message}</span>
+                    <div onClick={() => closeFn(message, type)} className={styles[type]}>
+                        <div className={styles.messageWrapper}>
+                            <h1 className={styles.title}>{title}</h1>
+                            <div className={styles.message}>
+                                <span>{message}</span>
+                            </div>
                         </div>
+                        <span className={styles.click}>Click to hide</span>
                     </div>
                 </div>
             </div>

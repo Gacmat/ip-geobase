@@ -9,11 +9,10 @@ import Icons from "../Icons";
 import Button from "../Button";
 import Input from "../Input";
 import Select from "../Select";
-import GeobaseTable from "./GeobaseTable";
+import Table from "./Table";
 import Pagination from "./Pagination";
-import EditWindow from "../Form/EditWindow";
-import GeobaseTableContext from "./GeobaseTable.context";
-import IpInputForm from "../Form/IpInputForm";
+import Modal from "../Form/Modal";
+import AppContext from "../../app.context";
 
 const styles = {
     wrapper: 'mx-auto px-2 sm:px-8 md:px-16 lg:px-24 xl:px-32 2xl:px-40 py-2 md:py-8',
@@ -43,9 +42,7 @@ class GeobaseWrapper extends React.Component {
         filters: [],
         filter: '',
         filterValue: '',
-        isEditWindowOpen: false,
-        needRefresh: false,
-        openEditWindowToAddNewRecord: false
+        isModalOpen: false,
     }
 
 
@@ -122,26 +119,23 @@ class GeobaseWrapper extends React.Component {
         })
     }
 
-    openEditWindow = (item, editOption) => {
-        this.setState({ openEditWindowToAddNewRecord:editOption})
-        this.setState({item: item, isEditWindowOpen:true});
+    openModal = (item) => {
+        this.setState({item: item});
+        this.setState({isModalOpen: true});
     }
 
-    closeEditWindow = () => {
-        this.setState({isEditWindowOpen: false});
+    closeModal = () => {
+        this.setState({isModalOpen: false});
+
     }
 
-    refreshContent = () => {
-        this.setState({needRefresh:true});
-    }
-
-    handleDataReceive = () => {
+    componentDidMount() {
         const cookies = new Cookies();
         axios.get(GeobaseApi.URI).then(res => {
-            this.setState({...res.data});
             if (cookies.get('perPage')) {
                 res.data.perPage = parseInt(cookies.get('perPage'));
             }
+            this.setState({...res.data});
             let filters = [];
             Object.keys(res.data.geolocations[0]).forEach(key => {
                 if (key !== '__v' && key !== '_id')
@@ -149,19 +143,8 @@ class GeobaseWrapper extends React.Component {
             });
             this.setState({filters: filters});
         }).catch(err => {
-            this.props.showFlash(err.message + '. Server could not connect to database, try again later', 'error');
+            this.props.showFlash(err.message, 'error');
         });
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.state.needRefresh === true){
-            this.setState({needRefresh:false});
-            this.handleDataReceive();
-        }
-    }
-
-    componentDidMount() {
-        this.handleDataReceive();
     }
 
     //</editor-fold>
@@ -173,7 +156,7 @@ class GeobaseWrapper extends React.Component {
         let visibleElements = parseInt(page * this.state.perPage > this.state.countAll
             ? this.state.countAll
             : page * this.state.perPage);
-        let allPages = Math.ceil(parseInt(this.state.count) / parseInt(this.state.perPage)) || 1;
+        let allPages = Math.ceil(parseInt(this.state.count) / parseInt(this.state.perPage));
 
         const pagination = {
             page,
@@ -185,21 +168,21 @@ class GeobaseWrapper extends React.Component {
             handlePrevPage: this.handlePrevPage
         }
 
-        const contextElements = {
+        const contextModalElements = {
             item: this.state.item,
-            openEditWindow: this.openEditWindow,
-            closeEditWindow: this.closeEditWindow,
+            openModal: this.openModal,
+            closeModal: this.closeModal,
             handleChange: this.handleChange,
             showFlash: this.props.showFlash,
             closeFlash: this.props.closeFlash,
-            refreshContent: this.refreshContent,
+            isLogged: this.props.isLogged,
+            userName: this.props.userName
         }
 
         let selectFilters = this.state.filters;
 
         return (
-            <GeobaseTableContext.Provider value={contextElements}>
-                <IpInputForm {...contextElements}/>
+            <AppContext.Provider value={contextModalElements}>
                 <div className={styles.wrapper}>
                     <h2 className={styles.title}>Geolocations</h2>
                     <div className={styles.filterBarWrapper}>
@@ -211,12 +194,12 @@ class GeobaseWrapper extends React.Component {
                             <Button styleMode={"cancel"}>Ok</Button>
                         </form>
                     </div>
-                    <GeobaseTable filters={this.state.filters} items={this.state.geolocations}
-                                  handleSort={this.handleSort}/>
+                    <Table filters={this.state.filters} items={this.state.geolocations}
+                           handleSort={this.handleSort}/>
                     <Pagination {...pagination}/>
                 </div>
-                {this.state.isEditWindowOpen && <EditWindow addNew={this.state.openEditWindowToAddNewRecord} {...contextElements}/>}
-            </GeobaseTableContext.Provider>
+                {this.state.isModalOpen && <Modal edit {...contextModalElements}/>}
+            </AppContext.Provider>
         )
     }
 
