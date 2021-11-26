@@ -8,8 +8,8 @@ Fullstack Developer test task
 To run this application you need installed Docker and Docker-Compose
 
 1. open terminal
-2. Download github repo: git clone http://github/com/Gacmat/TesTask.git
-3. cd TestTask
+2. Download github repo: git clone http://github/com/Gacmat/IP-database-Web-Application.git
+3. cd IP-database-Web-Application
 4. build images for backend and frontend
 4.5 if you have installed any Make you can just write 'make' to create images.
 5. docker build -t api-server ./server/
