@@ -10,7 +10,7 @@ To run this application you need installed Docker and Docker-Compose
 1. open terminal
 2. Download github repo:
 <pre>
-git clone http://github/com/Gacmat/IP-database-Web-Application.git
+git clone https://github/com/Gacmat/IP-database-Web-Application.git
 </pre>
 3. build images for backend and frontend (if you have installed any Make you can just write 'make' to create images.)
 <pre>
